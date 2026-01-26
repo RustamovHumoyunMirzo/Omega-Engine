@@ -32,6 +32,13 @@ add_executable(OmegaEngine
     engine/platform/sdl/SDLWindow.cpp
 )
 
+if (MINGW)
+    target_link_options(OmegaEngine PRIVATE
+        $<$<CONFIG:Release>:-mwindows>
+        $<$<CONFIG:RelWithDebInfo>:-mwindows>
+    )
+endif()
+
 target_include_directories(OmegaEngine PRIVATE
     engine
     engine/core
@@ -42,7 +49,6 @@ target_include_directories(OmegaEngine PRIVATE
 
 target_link_libraries(OmegaEngine PRIVATE
     imgui
-    mingw32
     "${SDL2_LIB_DIR}/libSDL2.a"
     "${SDL2_LIB_DIR}/libSDL2main.a"
 )
