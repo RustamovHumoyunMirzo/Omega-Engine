@@ -1,27 +1,28 @@
+#include "SDL2/SDL.h"
 #include "SDLWindow.h"
-#include <SDL2/SDL.h>
-#include <stdexcept>
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
 
-SDLWindow::SDLWindow(const std::string& title, int width, int height)
-    : m_Width(width), m_Height(height)
+bool SDLWindow::Init()
 {
+    SDL_Init(SDL_INIT_VIDEO);
+
     m_Window = SDL_CreateWindow(
-        title.c_str(),
+        "OmegaEngine",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        width,
-        height,
-        SDL_WINDOW_RESIZABLE
+        1280,
+        720,
+        SDL_WINDOW_SHOWN
     );
 
-    if (!m_Window)
-        throw std::runtime_error(SDL_GetError());
-}
+    m_Renderer = SDL_CreateRenderer(
+        m_Window,
+        -1,
+        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+    );
 
-SDLWindow::~SDLWindow()
-{
-    if (m_Window)
-        SDL_DestroyWindow(m_Window);
+    return m_Window && m_Renderer;
 }
 
 void SDLWindow::PollEvents(bool& running)
@@ -29,21 +30,14 @@ void SDLWindow::PollEvents(bool& running)
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        if (event.type == SDL_QUIT)
-            running = false;
+        ImGui_ImplSDL2_ProcessEvent(&event);
 
-        if (event.type == SDL_WINDOWEVENT &&
-            event.window.event == SDL_WINDOWEVENT_CLOSE)
+        if (event.type == SDL_QUIT)
             running = false;
     }
 }
 
-void* SDLWindow::GetNativeHandle() const
+void SDLWindow::SwapBuffers()
 {
-    return static_cast<void*>(m_Window);
-}
-
-void SDLWindow::Maximize()
-{
-    SDL_MaximizeWindow(m_Window);
+    SDL_RenderPresent(m_Renderer);
 }
