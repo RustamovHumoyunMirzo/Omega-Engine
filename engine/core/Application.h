@@ -1,16 +1,12 @@
 #pragma once
-#include <memory>
-#include "SDLWindow.h"
+#include "platform/sdl/SDLWindow.h"
 
-class SDLWindow;
-
-class Application {
+class Application
+{
 public:
-    Application();
-    ~Application();
-
     void Run();
 
 private:
-    std::unique_ptr<SDLWindow> m_Window;
+    SDLWindow m_Window;
+    bool m_Running = true;
 };
