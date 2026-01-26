@@ -1,50 +1,53 @@
 #include "Application.h"
-#include "SDLWindow.h"
+
 #include <SDL2/SDL.h>
-#include <stdexcept>
-
-Application::Application()
-{
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-        throw std::runtime_error(SDL_GetError());
-
-    SDL_Rect usableBounds;
-    SDL_GetDisplayUsableBounds(0, &usableBounds);
-
-    m_Window = std::make_unique<SDLWindow>(
-        "Omega Engine",
-        usableBounds.w,
-        usableBounds.h
-    );
-    
-    m_Window->Maximize();
-}
-
-Application::~Application()
-{
-    SDL_Quit();
-}
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_sdlrenderer2.h>
 
 void Application::Run()
 {
-    SDL_Window* window =
-        static_cast<SDL_Window*>(m_Window->GetNativeHandle());
+    m_Window.Init();
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(
-        window,
-        -1,
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplSDL2_InitForSDLRenderer(
+        m_Window.GetWindow(),
+        m_Window.GetRenderer()
     );
+    ImGui_ImplSDLRenderer2_Init(m_Window.GetRenderer());
 
-    bool running = true;
-    while (running)
+    while (m_Running)
     {
-        m_Window->PollEvents(running);
+        m_Window.PollEvents(m_Running);
 
-        SDL_SetRenderDrawColor(renderer, 25, 25, 25, 255);
-        SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
+        ImGui_ImplSDLRenderer2_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("OmegaEngine");
+        ImGui::Text("SDL2 + ImGui (no bgfx)");
+        ImGui::Text("Renderer: SDL_Renderer");
+        ImGui::End();
+
+        ImGui::Render();
+
+        SDL_SetRenderDrawColor(
+            m_Window.GetRenderer(), 25, 25, 25, 255
+        );
+        SDL_RenderClear(m_Window.GetRenderer());
+
+        ImGui_ImplSDLRenderer2_RenderDrawData(
+            ImGui::GetDrawData(),
+            m_Window.GetRenderer()
+        );
+
+        m_Window.SwapBuffers();
     }
 
-    SDL_DestroyRenderer(renderer);
+    ImGui_ImplSDLRenderer2_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
 }
