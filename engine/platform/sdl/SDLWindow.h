@@ -1,26 +1,17 @@
 #pragma once
-
-#include <string>
-
-struct SDL_Window;
+#include <SDL.h>
 
 class SDLWindow
 {
 public:
-    SDLWindow(const std::string& title, int width, int height);
-    ~SDLWindow();
-
+    bool Init();
     void PollEvents(bool& running);
     void SwapBuffers();
-    void Maximize();
 
-    void* GetNativeHandle() const;
-
-    int GetWidth() const { return m_Width; }
-    int GetHeight() const { return m_Height; }
+    SDL_Window* GetWindow() const { return m_Window; }
+    SDL_Renderer* GetRenderer() const { return m_Renderer; }
 
 private:
     SDL_Window* m_Window = nullptr;
-    int m_Width  = 0;
-    int m_Height = 0;
+    SDL_Renderer* m_Renderer = nullptr;
 };
