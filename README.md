@@ -30,18 +30,6 @@ The engine is being developed as a learning-focused but long-term project.
 
 ---
 
-## Dependencies
-
-Currently, some dependencies must be provided manually.
-
-- **ImGui**  
-  Developers must download the full ImGui source code and place it into: `external/imgui`
-
-
-Other dependencies will be integrated as development progresses.
-
----
-
 ## Build Instructions
 
 ### Requirements
